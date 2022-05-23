@@ -16,7 +16,7 @@ cm = 10^4;
 uhover = (g*m)/(4*cm*k);
 u1 = uhover;
 u2 = uhover;
-u3= uhover;
+u3 = uhover;
 u4 = uhover;
 
 % construct Jacobian = A
@@ -31,7 +31,7 @@ A(5,7) = -k*cm/m*(u1+u2+u3+u4);
 A(6,6) = -kd/m;
 A(7,10) = 1;
 A(8,11) = 1;
-A(9,12) = 0;
+A(9,12) = 1;
 
 % Jacobian for inputs = B
 B = zeros(12,4);
@@ -40,20 +40,22 @@ B(10,1) = L*k*cm/Ixx;
 B(10,3) = -L*k*cm/Ixx;
 B(11,2) = L*k*cm/Iyy;
 B(11,4) = -L*k*cm/Iyy;
-B(11,1) = b*cm/Izz;
-B(11,2) = - b*cm/Izz;
-B(11,3) = b*cm/Izz;
-B(11,4) = - b*cm/Izz;
+B(12,1) = b*cm/Izz;
+B(12,2) = - b*cm/Izz;
+B(12,3) = b*cm/Izz;
+B(12,4) = - b*cm/Izz;
 
 % construct C
 C = eye(12);
 
 D = zeros(12,4);
 
+sys = ss(A,B,C,D);
+
 % discretization
 Ts = 0.05;
 [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
-sys = ss(Ad,Bd,Cd,Dd,Ts);
+sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
 % LQR controller
 Qposition = [100 100 100];
@@ -62,8 +64,11 @@ Qangle    = [0.1 0.1 0.1];
 Qangveloc = [0.1 0.1 0.1];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
 R = eye(4);
+% N = ones(12,4);
+% K = dlqr(Ad,Bd,Q,R);
+
 K = lqr(sys,Q,R);
 
 % probleem: unobservable mode on unit circle (denk ik) ... 
-% https://nl.mathworks.com/help/control/ref/lqr.html
+% https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations
