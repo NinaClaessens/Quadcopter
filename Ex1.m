@@ -3,7 +3,7 @@ close all
 
 load('references_16.mat')
 
-%find fixed point
+% find fixed point
 syms k cm m g L Ixx Iyy Izz b u1 u2 u3 u4
 eq1 = k*cm/m*(u1 + u2 + u3 + u4) - g == 0;
 eq2 = L*k*cm/Ixx*(u1 - u3) == 0;
@@ -26,7 +26,16 @@ u2 = (g*m)/(4*cm*k);
 u3= (g*m)/(4*cm*k);
 u4 = (g*m)/(4*cm*k);
 
-%construct Jacobian
+% x = [x y z vx vy vz phi theta psi wx wy wz]
+% u = [v1^2 v2^2 v3^2 v4^2]
+% y = [x y z phi theta psi]
+% 
+% linearized system = 
+% 
+%       xd = Ax + Bu
+%       y  = Cx
+
+% construct Jacobian = A
 A= zeros(12);
 A(1,4) = 1;
 
@@ -42,13 +51,14 @@ A(5,7) = -k*cm/m*(u1+u2+u3+u4);
 
 A(6,6) = -kd/m;
 
-A(7,9) = 1;
+% A(7,9) = 1;
+A(7,10) = 1;
 
 A(8,11) = 1;
 
 A(9,12) = 0;
 
-%Jacobian for inputs
+% Jacobian for inputs = B
 B = zeros(12,4);
 
 B(6,1:4) = k*cm/m;
@@ -64,7 +74,7 @@ B(11,2) = - b*cm/Izz;
 B(11,3) = b*cm/Izz;
 B(11,4) = - b*cm/Izz;
 
-%construct c
+% construct C
 C = zeros(6,12);
 C(1,1) = 1;
 C(2,2) = 1;
@@ -75,8 +85,13 @@ C(6,9) = 1;
 
 D = zeros(6,4);
 
-t = 0:0.05:10;
+t = 0:0.05:5;
+dr = zeros(length(t),5);
+dr(:,1) = t;
+dr(20:end,2:5) = 5;   % substract reference values
+dr(1:20,2:5) = 0;
+
 r = zeros(length(t),5);
 r(:,1) = t;
-r(100:end,2:5) = 100 - u1; %substract reference values
-r(1:100,2:5) = -u1;
+r(20:end,2:5) = 5+u1;   % substract reference values
+r(1:20,2:5) = 0+u1;
