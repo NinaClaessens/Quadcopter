@@ -65,22 +65,20 @@ Dd = sysd.D;
 
 % LQR controller
 Qposition = [1000 1000 1000];
-Qvelocity = [1000 1000 1000];
-Qangle    = [1000 1000 1000];
-Qangveloc = [1000 1000 1000];
+Qvelocity = [0.1 0.1 0.1];
+Qangle    = [0.1 0.1 0.1];
+Qangveloc = [0.1 0.1 0.1];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
 R = eye(4);
-% K = dlqr(eye(12)+A*Ts,B*Ts,Q,R); euler
-
-% N = ones(12,4);
 K = dlqr(Ad,Bd,Q,R);
 
-% K = lqr(sys,Q,R);
+% N = ones(12,4);
+% K = dlqr(Ad,Bd,Q,R);
+
+K = lqr(sys,Q,R);
 
 sysd = ss(Ad,Bd,Cd,Dd,Ts);
-
-% N =pinv([A*Ts, B*Ts; C, D])*[zeros(12,12); eye(12)]; %euler
-N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
+% N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
 % probleem: unobservable mode on unit circle (denk ik) ... 
