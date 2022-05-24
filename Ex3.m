@@ -71,7 +71,7 @@ K = dlqr(Ad,Bd,Q,R);
 
 K = lqr(sys,Q,R);
 
-N =pinv([Ad , Bd; Cd, Dd])*[zeros(12,12); eye(12)];
+N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
 % probleem: unobservable mode on unit circle (denk ik) ... 
