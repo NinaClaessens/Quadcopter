@@ -56,7 +56,7 @@ A(7,10) = 1;
 
 A(8,11) = 1;
 
-A(9,12) = 0;
+A(9,12) = 1;
 
 % Jacobian for inputs = B
 B = zeros(12,4);
@@ -69,10 +69,10 @@ B(10,3) = -L*k*cm/Ixx;
 B(11,2) = L*k*cm/Iyy;
 B(11,4) = -L*k*cm/Iyy;
 
-B(11,1) = b*cm/Izz;
-B(11,2) = - b*cm/Izz;
-B(11,3) = b*cm/Izz;
-B(11,4) = - b*cm/Izz;
+B(12,1) = b*cm/Izz;
+B(12,2) = - b*cm/Izz;
+B(12,3) = b*cm/Izz;
+B(12,4) = - b*cm/Izz;
 
 % construct C
 C = zeros(6,12);
