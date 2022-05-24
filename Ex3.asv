@@ -58,10 +58,10 @@ Ts = 0.05;
 sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
 % LQR controller
-Qposition = [1000 1000 1000];
-Qvelocity = [0.1 0.1 0.1];
-Qangle    = [0.1 0.1 0.1];
-Qangveloc = [0.1 0.1 0.1];
+Qposition = [100 100 100];
+Qvelocity = [100 100 100];
+Qangle    = [100 100 100];
+Qangveloc = [100 100 100];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
 R = eye(4);
 K = dlqr(Ad,Bd,Q,R);
@@ -71,9 +71,9 @@ K = dlqr(Ad,Bd,Q,R);
 
 K = lqr(sys,Q,R);
 
-N =pinv([Ad , Bd; Cd, Dd])*[zeros(12,12); eye(12)];
-Nx = N(1:12,:);
-Nu = N(13:end,:);
+N =pinv([Ad , Bd; Cd, Dd])*[zeros(20,4); eye(4)];
+Nx = N(1:8,:);
+Nu = N(9:end,:);
 % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations
