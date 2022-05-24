@@ -83,6 +83,12 @@ sysd = ss(Ad,Bd,Cd,Dd,Ts);
 N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
+
+
+%K_int = lqi(sys,eye(24)*1000,R); %geeft zelfde error
+K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
+K1 = K_int(1:12,:);
+K0 = K_int(13:24,:);
 % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations
