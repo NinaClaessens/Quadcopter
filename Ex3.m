@@ -57,12 +57,13 @@ sys = ss(Ad,Bd,Cd,Dd,Ts);
 
 % LQR controller
 Qposition = [100 100 100];
-Qvelocity = [0.1 0.1 0.1];
-Qangle    = [0.1 0.1 0.1];
-Qangveloc = [0.1 0.1 0.1];
+Qvelocity = [100 100 100];
+Qangle    = [100 100 100];
+Qangveloc = [100 100 100];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
 R = eye(4);
-K = lqr(sys,Q,R);
+K = dlqr(Ad,Bd,Q,R);
+
 
 % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/lqr.html

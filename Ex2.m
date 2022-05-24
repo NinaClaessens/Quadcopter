@@ -122,12 +122,18 @@ disp('nb of unobservable states is');
 disp(length(A)-rank(Ob))        % not observable (1 unobs. state, 
                                 %                       state 12)
 
-% stabilisability
-% unstable states 9 & 12 are not controllable => system not stabilisable
+% stabilisability: check for unstable states 4,5,6
+Bd'*U(:,1:3) %When zero, check if is eigenvector (for states 3 and 12)
+Bd'*U(:,7:12)
+Ad'*U(:,[3,12]) %state 12 not stabilisable
+% detectability: check for unstable states 4,5,6
+Cd*U(:,1:3) %When zero, check if is eigenvector (for state 12)
+Cd*U(:,7:12) 
+Ad*U(:,12) %state 12 not detectable
 
-% detectability
-% unstable state 12 is not observable => system not detectable
 
+
+% 
 %% simulation data
 t = 0:0.05:5;
 dr = zeros(length(t),5);
