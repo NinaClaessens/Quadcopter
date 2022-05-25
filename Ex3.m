@@ -64,20 +64,29 @@ Dd = sysd.D;
 
 
 % LQR controller
-Qposition = [1000 1000 1000];
-Qvelocity = [1000 1000 1000];
-Qangle    = [1000 1000 1000];
-Qangveloc = [1000 1000 1000];
+Qposition = [70 70 9000];
+Qvelocity = [0.1 0.1 0.1];
+Qangle    = [850 850 50];
+Qangveloc = [1 1 1];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
-R = eye(4);
+R = eye(4)*3.4;
 % K = dlqr(eye(12)+A*Ts,B*Ts,Q,R); euler
 
-% N = ones(12,4);
+
 K = dlqr(Ad,Bd,Q,R);
 
 % K = lqr(sys,Q,R);
+Acl = Ad-Bd*K;
+Bcl = Bd*K;
+Ccl = Cd-Dd*K;
+Dcl = Dd*K;
 
-sysd = ss(Ad,Bd,Cd,Dd,Ts);
+syscl = ss(Acl,Bcl,Ccl,Dcl);
+theta = 0:0.01:2*pi;
+figure
+pzplot(syscl)
+hold on
+plot(cos(theta),sin(theta))
 
 % N =pinv([A*Ts, B*Ts; C, D])*[zeros(12,12); eye(12)]; %euler
 N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
@@ -86,9 +95,9 @@ Nu = N(13:end,:);
 
 
 %K_int = lqi(sys,eye(24)*1000,R); %geeft zelfde error
-K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
-K1 = K_int(1:12,:);
-K0 = K_int(13:24,:);
-% probleem: unobservable mode on unit circle (denk ik) ... 
+%K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
+% K1 = K_int(1:12,:);
+% K0 = K_int(13:24,:);
+% % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations
