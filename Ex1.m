@@ -88,7 +88,7 @@ D = zeros(6,4);
 t = 0:0.05:5;
 dr = zeros(length(t),5);
 dr(:,1) = t;
-dr(20:end,2:5) = 5;   % substract reference values
+dr(20:end,2:5) = 5;
 dr(1:20,2:5) = 0;
 
 r = zeros(length(t),5);

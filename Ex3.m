@@ -54,20 +54,16 @@ sys = ss(A,B,C,D);
 
 
 Ts = 0.05;
-% sysd = c2d(ss(A,B,C,D),Ts,'tustin');
-% Ad = sysd.A;
-% Bd = sysd.B;
-% Cd = sysd.C;
-% Dd = sysd.D;
 
-Ad = A*Ts+eye(12); %euler
-Bd = B*Ts;
-Cd = C;
-Dd = D;
-sysd = ss(Ad,Bd,Cd,Dd,Ts);
+% bilinear
+[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % zelfde als tustin
 
-% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
-
+% euler
+% Ad = A*Ts+eye(12); 
+% Bd = B*Ts;
+% Cd = C;
+% Dd = D;
+% sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
 
 % LQR controller
@@ -77,8 +73,6 @@ Qangle    = [850 850 50];
 Qangveloc = [1 1 1];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
 R = eye(4)*3.4;
-% K = dlqr(eye(12)+A*Ts,B*Ts,Q,R); euler
-
 
 K = dlqr(Ad,Bd,Q,R);
 
