@@ -52,49 +52,93 @@ D = zeros(12,4);
 
 sys = ss(A,B,C,D);
 
-% discretization
-Ts = 0.05;
-sysd = c2d(ss(A,B,C,D),Ts,'tustin');
-Ad = sysd.A;
-Bd = sysd.B;
-Cd = sysd.C;
-Dd = sysd.D;
-% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % zelfde als tustin
 
+Ts = 0.05;
+
+% bilinear
+[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % zelfde als tustin
+
+% euler
+% Ad = A*Ts+eye(12); 
+% Bd = B*Ts;
+% Cd = C;
+% Dd = D;
+% sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
 
 % LQR controller
-Qposition = [100 100 100];
-Qvelocity = [1 1 1];
-Qangle    = [1000 1000 1000];
+Qposition = [70 70 9000]; 
+Qvelocity = [0.1 0.1 0.1];
+Qangle    = [850 850 50];
 Qangveloc = [1 1 1];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
-R = eye(4)*0.01;
-% K = dlqr(eye(12)+A*Ts,B*Ts,Q,R); euler
+R = eye(4)*3.4;
+
 K = dlqr(Ad,Bd,Q,R);
 
-sysd = ss(Ad,Bd,Cd,Dd,Ts);
+%pole plot
+Acl = Ad-Bd*K;
+Bcl = Bd*K;
+Ccl = Cd-Dd*K;
+Dcl = Dd*K;
+
+syscl = ss(Acl,Bcl,Ccl,Dcl);
+theta = 0:0.01:2*pi;
+figure
+pzplot(syscl)
+hold on
+plot(cos(theta),sin(theta))
 
 % N =pinv([A*Ts, B*Ts; C, D])*[zeros(12,12); eye(12)]; %euler
 N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
 
-% Nbar = rscale(sysd,K);
+%% Integral control
+% construct C
+C = zeros(3,12);
+C(1:3,1:3) = eye(3);
+D = zeros(3,4);
+sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+% Ad = sysd.A;
+% Bd = sysd.B;
+% Cd = sysd.C;
+% Dd = sysd.D;
 
-%% integral control
-% augmented system
-Aa = [eye(size(Cd,1)) Cd; zeros(size(Ad,1),size(Cd,1)) Ad];
-Ba = [Dd; Bd];
-Co = ctrb(Aa,Ba);
-disp('nb of uncontrollable states is');
-disp(length(Aa) - rank(Co))
+Ad = A*Ts+eye(12); %euler
+Bd = B*Ts;
+Cd = C;
+Dd = D;
+sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
-Q_int = [zeros(size(Q)) Q; Q zeros(size(Q))];
-K_int = lqi(sysd,Q_int,R); % geeft zelfde error
-% K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
-% K1 = K_int(1:12,:);
-% K0 = K_int(13:24,:);
-% probleem: unobservable mode on unit circle (denk ik) ... 
+Aa = [eye(3), Cd; zeros(12,3), Ad];
+Ba = [Dd;Bd];
+Ca = [zeros(3) Cd];
+
+rank(ctrb(Aa, Ba)) %controllable!
+Qerr = [10 10 10];
+Qposition = [700 700 4000]; 
+Qvelocity = [0.1 0.1 0.1];
+Qangle    = [2500 3500 4000];
+Qangveloc = [1 1 1];
+AugQ = diag([Qerr Qposition Qvelocity Qangle Qangveloc]);
+AugR = R/200;
+K_int = dlqr(Aa,Ba,AugQ,AugR); 
+K1 = K_int(:,1:3);
+K0 = K_int(:,4:15);
+
+%generate pole plot
+Acl = Aa-Ba*K_int;
+Bcl = Ba*K_int;
+Ccl = Ca-Dd*K_int;
+Dcl = Dd*K_int;
+syscl = ss(Acl,Bcl,Ccl,Dcl);
+theta = 0:0.01:2*pi;
+figure
+pzplot(syscl)
+hold on
+plot(cos(theta),sin(theta))
+
+% % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations
