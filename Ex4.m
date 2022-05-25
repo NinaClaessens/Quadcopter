@@ -51,13 +51,12 @@ C(1:3,1:3) = eye(3);
 D = zeros(3,4);
 sys = ss(A,B,C,D);
 
-
 Ts = 0.05;
-Ad = A*Ts+eye(12); %euler
-Bd = B*Ts;
-Cd = C;
-Dd = D;
-sysd = ss(Ad,Bd,Cd,Dd,Ts);
+sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
 
 Aa = [eye(3), Cd; zeros(12,3), Ad];
 Ba = [Dd;Bd];
@@ -76,13 +75,25 @@ K1 = K_int(:,1:3);
 K0 = K_int(:,4:15);
 
 %% Kalmann
-sys_k = ss(Ad,[Bd eye(12)],Cd,[Dd zeros(3,12)],Ts); %met noise inputs
+C = zeros(6,12);
+C(1:3,1:3) = eye(3);
+C(4:6,7:9) = eye(3);
+D = zeros(6,4);
+sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
+
+%sys_k = ss(Ad,[Bd eye(12)],Cd,[Dd zeros(6,12)],Ts); %met noise inputs
 rank(obsv(Ad,Cd)) %niet observable
-Q_k = zeros(12);
-Q_k(1:3,1:3) = eye(3)*2.5*10^(-5);
-Q_k(7:9,7:9) = eye(3)*7.57*10^(-5);
-R_k= eye(3)*2.5*10^(-5); %=random nu, moet denk ik measurement noise op y zijn
-kalmf = kalman(sys_k,Q_k,R_k)
+
+R_k = zeros(6);
+R_k(1:3,1:3) = eye(3)*2.5*10^(-5);
+R_k(4:6,4:6) = eye(3)*7.57*10^(-5);
+
+Q_k= eye(4)*0.0001;
+kalmf = kalman(sysd,Q_k,R_k)
 
 
 
