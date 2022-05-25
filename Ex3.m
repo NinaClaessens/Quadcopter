@@ -53,12 +53,19 @@ D = zeros(12,4);
 sys = ss(A,B,C,D);
 
 % discretization
-Ts = 0.05;
-sysd = c2d(ss(A,B,C,D),Ts,'tustin');
-Ad = sysd.A;
-Bd = sysd.B;
-Cd = sysd.C;
-Dd = sysd.D;
+% Ts = 0.05;
+% sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+% Ad = sysd.A;
+% Bd = sysd.B;
+% Cd = sysd.C;
+% Dd = sysd.D;
+
+Ad = A*Ts+eye(12); %euler
+Bd = B*Ts;
+Cd = C;
+Dd = D;
+sysd = ss(Ad,Bd,Cd,Dd,Ts);
+
 % [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
 
 
@@ -99,11 +106,16 @@ C = zeros(3,12);
 C(1:3,1:3) = eye(3);
 D = zeros(3,4);
 sysd = c2d(ss(A,B,C,D),Ts,'tustin');
-Ad = sysd.A;
-Bd = sysd.B;
-Cd = sysd.C;
-Dd = sysd.D;
+% Ad = sysd.A;
+% Bd = sysd.B;
+% Cd = sysd.C;
+% Dd = sysd.D;
 
+Ad = A*Ts+eye(12); %euler
+Bd = B*Ts;
+Cd = C;
+Dd = D;
+sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
 Aa = [eye(3), Cd; zeros(12,3), Ad];
 Ba = [Dd;Bd];

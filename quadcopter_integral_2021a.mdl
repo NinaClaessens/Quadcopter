@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "18.1"
+    ComputedModelVersion    "18.2"
     NumModelReferences	    0
     NumTestPointedSignals   0
     NumProvidedFunctions    0
@@ -136,9 +136,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "r0737543"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed May 25 14:27:33 2022"
-  RTWModifiedTimeStamp	  575388616
-  ModelVersionFormat	  "%<AutoIncrement:18.1>"
+  LastModifiedDate	  "Wed May 25 14:42:18 2022"
+  RTWModifiedTimeStamp	  575390219
+  ModelVersionFormat	  "%<AutoIncrement:18.2>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
   LibraryLinkDisplay	  "disabled"
@@ -1456,7 +1456,7 @@ Model {
 	    }
 	    Name		    "sel_payload"
 	    Prompt		    "Payload [kg]:"
-	    Value		    "0"
+	    Value		    "0.1"
 	  }
 	  PropName		  "Parameters"
 	}
