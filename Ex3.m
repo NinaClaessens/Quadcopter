@@ -64,7 +64,7 @@ Dd = sysd.D;
 
 
 % LQR controller
-Qposition = [70 70 9000]; %
+Qposition = [70 70 9000]; 
 Qvelocity = [0.1 0.1 0.1];
 Qangle    = [850 850 50];
 Qangveloc = [1 1 1];
@@ -75,7 +75,7 @@ R = eye(4)*3.4;
 
 K = dlqr(Ad,Bd,Q,R);
 
-% K = lqr(sys,Q,R);
+%pole plot
 Acl = Ad-Bd*K;
 Bcl = Bd*K;
 Ccl = Cd-Dd*K;
@@ -93,11 +93,46 @@ N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
 
+%% Integral control
+% construct C
+C = zeros(3,12);
+C(1:3,1:3) = eye(3);
+D = zeros(3,4);
+sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
 
-%K_int = lqi(sys,eye(24)*1000,R); %geeft zelfde error
-%K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
-% K1 = K_int(1:12,:);
-% K0 = K_int(13:24,:);
+
+Aa = [eye(3), Cd; zeros(12,3), Ad];
+Ba = [Dd;Bd];
+Ca = [zeros(3) Cd];
+
+rank(ctrb(Aa, Ba)) %controllable!
+Qerr = [10 10 10];
+Qposition = [700 700 4000]; 
+Qvelocity = [0.1 0.1 0.1];
+Qangle    = [2500 3500 4000];
+Qangveloc = [1 1 1];
+AugQ = diag([Qerr Qposition Qvelocity Qangle Qangveloc]);
+AugR = R/200;
+K_int = dlqr(Aa,Ba,AugQ,AugR); 
+K1 = K_int(:,1:3);
+K0 = K_int(:,4:15);
+
+%generate pole plot
+Acl = Aa-Ba*K_int;
+Bcl = Ba*K_int;
+Ccl = Ca-Dd*K_int;
+Dcl = Dd*K_int;
+syscl = ss(Acl,Bcl,Ccl,Dcl);
+theta = 0:0.01:2*pi;
+figure
+pzplot(syscl)
+hold on
+plot(cos(theta),sin(theta))
+
 % % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations
