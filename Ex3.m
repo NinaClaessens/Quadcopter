@@ -59,23 +59,19 @@ Ad = sysd.A;
 Bd = sysd.B;
 Cd = sysd.C;
 Dd = sysd.D;
-% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
+% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % zelfde als tustin
 
 
 
 % LQR controller
-Qposition = [1000 1000 1000];
-Qvelocity = [1000 1000 1000];
+Qposition = [100 100 100];
+Qvelocity = [1 1 1];
 Qangle    = [1000 1000 1000];
-Qangveloc = [1000 1000 1000];
+Qangveloc = [1 1 1];
 Q = diag([Qposition Qvelocity Qangle Qangveloc]);
-R = eye(4);
+R = eye(4)*0.01;
 % K = dlqr(eye(12)+A*Ts,B*Ts,Q,R); euler
-
-% N = ones(12,4);
 K = dlqr(Ad,Bd,Q,R);
-
-% K = lqr(sys,Q,R);
 
 sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
@@ -84,11 +80,21 @@ N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
 
+% Nbar = rscale(sysd,K);
 
-%K_int = lqi(sys,eye(24)*1000,R); %geeft zelfde error
-K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
-K1 = K_int(1:12,:);
-K0 = K_int(13:24,:);
+%% integral control
+% augmented system
+Aa = [eye(size(Cd,1)) Cd; zeros(size(Ad,1),size(Cd,1)) Ad];
+Ba = [Dd; Bd];
+Co = ctrb(Aa,Ba);
+disp('nb of uncontrollable states is');
+disp(length(Aa) - rank(Co))
+
+Q_int = [zeros(size(Q)) Q; Q zeros(size(Q))];
+K_int = lqi(sysd,Q_int,R); % geeft zelfde error
+% K_int = dlqr([eye(12), Cd; zeros(12), Ad],[Dd;Bd], eye(24),eye(4));
+% K1 = K_int(1:12,:);
+% K0 = K_int(13:24,:);
 % probleem: unobservable mode on unit circle (denk ik) ... 
 % https://nl.mathworks.com/help/control/ref/dlqr.html
 % bij limitations

@@ -1,5 +1,5 @@
 clear
-close all
+% close all
 
 load('references_16.mat');
 
@@ -87,13 +87,13 @@ Ts = 0.05;
 % Dd = D;
 
 %% Euler's method
-% Ad = eye(size(A)) + Ts*A;
-% Bd = Ts*B;
-% Cd = C;
-% Dd = D;
+Ad = eye(size(A)) + Ts*A;
+Bd = Ts*B;
+Cd = C;
+Dd = D;
 
 %% Bilinear transformation
-[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
+% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
 
 %% Analysis
 sys = ss(Ad,Bd,Cd,Dd,Ts);
@@ -109,6 +109,7 @@ disp('poles are')
 disp(pole(sys))   % same as eigenvalues
                   % => minimal system
                   % => not in/out stable
+tzero(sys)
 
 % controllabililty
 Co = ctrb(Ad,Bd);
