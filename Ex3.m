@@ -52,13 +52,13 @@ D = zeros(12,4);
 
 sys = ss(A,B,C,D);
 
-% discretization
+
 Ts = 0.05;
-sysd = c2d(ss(A,B,C,D),Ts,'tustin');
-Ad = sysd.A;
-Bd = sysd.B;
-Cd = sysd.C;
-Dd = sysd.D;
+% sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+% Ad = sysd.A;
+% Bd = sysd.B;
+% Cd = sysd.C;
+% Dd = sysd.D;
 
 Ad = A*Ts+eye(12); %euler
 Bd = B*Ts;
