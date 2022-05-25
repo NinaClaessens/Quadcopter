@@ -64,7 +64,7 @@ Dd = sysd.D;
 
 
 % LQR controller
-Qposition = [70 70 9000];
+Qposition = [70 70 9000]; %
 Qvelocity = [0.1 0.1 0.1];
 Qangle    = [850 850 50];
 Qangveloc = [1 1 1];
