@@ -56,17 +56,14 @@ sys = ss(A,B,C,D);
 Ts = 0.05;
 
 % bilinear
-[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % zelfde als tustin
-
-% euler
-% Ad = A*Ts+eye(12); 
-% Bd = B*Ts;
-% Cd = C;
-% Dd = D;
-% sysd = ss(Ad,Bd,Cd,Dd,Ts);
+sysd = c2d(sys,Ts,'tustin');
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
 
 
-% LQR controller
+%% LQR controller
 Qposition = [70 70 9000]; 
 Qvelocity = [0.1 0.1 0.1];
 Qangle    = [850 850 50];
@@ -89,27 +86,20 @@ pzplot(syscl)
 hold on
 plot(cos(theta),sin(theta))
 
-% N =pinv([A*Ts, B*Ts; C, D])*[zeros(12,12); eye(12)]; %euler
 N =pinv([Ad-eye(12), Bd; Cd, Dd])*[zeros(12,12); eye(12)];
 Nx = N(1:12,:);
 Nu = N(13:end,:);
 
-%% Integral control
+%% Integral controller
 % construct C
 C = zeros(3,12);
 C(1:3,1:3) = eye(3);
 D = zeros(3,4);
 sysd = c2d(ss(A,B,C,D),Ts,'tustin');
-% Ad = sysd.A;
-% Bd = sysd.B;
-% Cd = sysd.C;
-% Dd = sysd.D;
-
-Ad = A*Ts+eye(12); %euler
-Bd = B*Ts;
-Cd = C;
-Dd = D;
-sysd = ss(Ad,Bd,Cd,Dd,Ts);
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
 
 Aa = [eye(3), Cd; zeros(12,3), Ad];
 Ba = [Dd;Bd];
@@ -138,7 +128,3 @@ figure
 pzplot(syscl)
 hold on
 plot(cos(theta),sin(theta))
-
-% % probleem: unobservable mode on unit circle (denk ik) ... 
-% https://nl.mathworks.com/help/control/ref/dlqr.html
-% bij limitations

@@ -93,7 +93,12 @@ Ts = 0.05;
 % Dd = D;
 
 %% Bilinear transformation
-[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
+% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts);
+sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
 
 %% Analysis
 sys = ss(Ad,Bd,Cd,Dd,Ts);
