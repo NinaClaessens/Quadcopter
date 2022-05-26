@@ -49,14 +49,17 @@ B(12,4) = - b*cm/Izz;
 C = zeros(3,12);
 C(1:3,1:3) = eye(3);
 D = zeros(3,4);
+
+% continuous system
 sys = ss(A,B,C,D);
 
 
 Ts = 0.05;
-Ad = A*Ts+eye(12); %euler
-Bd = B*Ts;
-Cd = C;
-Dd = D;
+% Ad = A*Ts+eye(12); %euler
+% Bd = B*Ts;
+% Cd = C;
+% Dd = D;
+[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % bilinear
 sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
 Aa = [eye(3), Cd; zeros(12,3), Ad];
@@ -76,7 +79,7 @@ K1 = K_int(:,1:3);
 K0 = K_int(:,4:15);
 
 %% Kalmann
-sys_k = ss(Ad,[Bd eye(12)],Cd,[Dd zeros(3,12)],Ts); %met noise inputs
+sys_k = ss(Ad,[Bd eye(12)],Cd,[Dd zeros(3,12)],Ts); % met noise inputs
 rank(obsv(Ad,Cd)) %niet observable
 Q_k = zeros(12);
 Q_k(1:3,1:3) = eye(3)*2.5*10^(-5);
