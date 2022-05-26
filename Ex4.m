@@ -99,7 +99,8 @@ R_k(1:3,1:3) = eye(3)*2.5*10^(-5);
 R_k(4:6,4:6) = eye(3)*7.57*10^(-5);
 
 Q_k= eye(12)*100; % welke waarde ik ook neem, resultaat verandert niet?
-% kalmf = kalman(sysd,Q_k,R_k);
+% [kalmf,L,N] = kalman(sysd,Q_k,R_k);
+% eig(Ad-L*Cd)
 
 sim('quadcopter_LQG_2021a.mdl');
 

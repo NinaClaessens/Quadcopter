@@ -54,28 +54,25 @@ D = zeros(3,4);
 sys = ss(A,B,C,D);
 
 Ts = 0.05;
-% Ad = A*Ts+eye(12); %euler
-% Bd = B*Ts;
-% Cd = C;
-% Dd = D;
-% [Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % bilinear
+
+% discrete system
 sysd = c2d(ss(A,B,C,D),Ts,'tustin');
 Ad = sysd.A;
 Bd = sysd.B;
 Cd = sysd.C;
 Dd = sysd.D;
-% sysd = ss(Ad,Bd,Cd,Dd,Ts);
 
+%% integral controller
 Aa = [eye(3), Cd; zeros(12,3), Ad];
 Ba = [Dd;Bd];
 Ca = [zeros(3) Cd];
 
 disp('nb uncontrollable states =');
 disp(size(Aa,1)-rank(ctrb(Aa,Ba))) % controllable
-Qerr = [10 10 10];
-Qposition = [700 700 4000]; 
+Qerr = [20 20 20];
+Qposition = [700 700 700]; 
 Qvelocity = [0.1 0.1 0.1];
-Qangle    = [2500 3500 4000];
+Qangle    = [2500 3500 700];
 Qangveloc = [1 1 1];
 AugQ = diag([Qerr Qposition Qvelocity Qangle Qangveloc]);
 AugR = eye(4)*3.4/200;
@@ -84,15 +81,15 @@ K1 = K_int(:,1:3);
 K0 = K_int(:,4:15);
 
 %% Kalman
-
-sys_k = ss(Ad,[Bd eye(12)],Cd,[Dd zeros(3,12)],Ts); % met noise inputs
-
 C = zeros(6,12);
 C(1:3,1:3) = eye(3);
 C(4:6,7:9) = eye(3);
 D = zeros(6,4);
-[Ad, Bd, Cd, Dd] = bilinear(A,B,C,D,1/Ts); % bilinear
-sysd = ss(Ad,Bd,Cd,Dd,Ts);
+sysd = c2d(ss(A,B,C,D),Ts,'tustin');
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Dd = sysd.D;
 
 disp('nb unobservable states =');
 disp(size(Ad,1)-rank(obsv(Ad,Cd))) % observable
@@ -101,8 +98,8 @@ R_k = zeros(6);
 R_k(1:3,1:3) = eye(3)*2.5*10^(-5);
 R_k(4:6,4:6) = eye(3)*7.57*10^(-5);
 
-Q_k= eye(4)*0.0001;
-kalmf = kalman(sysd,Q_k,R_k);
+Q_k= eye(12)*100; % welke waarde ik ook neem, resultaat verandert niet?
+[kalmf,L,N] = kalman(sysd,Q_k,R_k);
 
 sim('quadcopter_LQG_2021a.mdl');
 
